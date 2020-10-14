@@ -1,5 +1,6 @@
 # alura-pic
 
+Curso Alura - Vue JS
 > A Vue.js project
 
 ## Build Setup

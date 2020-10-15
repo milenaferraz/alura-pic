@@ -31,6 +31,7 @@
 import Painel from "../shared/painel/painel.vue";
 import ImagemResponsiva from "../shared/imagem-responsiva/imagemResponsiva.vue";
 import Botao from "../botao/Botao.vue";
+import FotoService from '../../domain/foto/FotoService.js';
 
 export default {
   components: {
@@ -42,7 +43,7 @@ export default {
   name: "app",
   data() {
     return {
-      titulo: "AluraPic",
+      titulo: "ALURA-PIC",
       fotos: [],
       filtro: "",
       mensagem: "",
@@ -62,7 +63,7 @@ export default {
 
   methods: {
     remove(foto) {
-      this.resource.delete({id: foto._id})      
+      this.service.apagar(foto.id)      
       .then(()=> {
         let indice = this.fotos.indexOf(foto);
         this.fotos.splice(indice, 1);
@@ -72,12 +73,12 @@ export default {
   },
 
   created() {
-    this.resource = this.$resource('v1/fotos{/id}');
-    this.resource
-      .query()
-      .then((res) => res.json())
+    this.service = new FotoService(this.$resource);
+    this.service
+    .listar()
       .then((json) => this.fotos = json, err => console.log(err));      
   },
+
 };
 </script>
 

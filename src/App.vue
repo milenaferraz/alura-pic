@@ -1,6 +1,6 @@
 <template>
   <div class="corpo">
-    <meu-menu :rotas="routes" />
+    <meu-menu :rotas="routes"></meu-menu>
     <transition name="pagina">
       <router-view></router-view>
     </transition>
@@ -9,12 +9,18 @@
 
 <script>
 import { routes } from "./routes.js";
-import Menu from "./components/menu/menu.vue";
+import Menu from "./components/menu/Menu.vue";
 
 export default {
   components: {
     "meu-menu": Menu,
   },
+
+  data() {
+    return {
+      routes : routes.filter(route => route.menu)
+    }
+  }
 };
 </script>
 

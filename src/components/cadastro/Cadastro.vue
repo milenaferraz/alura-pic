@@ -10,18 +10,30 @@
           id="titulo"
           autocomplete="off"
           v-model="foto.titulo"
+          v-validate
+          data-vv-rules="required|min:3|max:30"
+          data-vv-as="Título"
+          name="titulo"
         />
+        <span v-show="errors.has('titulo')">{{ errors.first('titulo') }}</span>
       </div>
-
       <div class="controle">
         <label for="url">URL</label>
         <input
           type="text"
           id="url"
           autocomplete="off"
-          v-model.lazy="foto.url"
+          v-model="foto.url"
+          v-validate
+          data-vv-rules="required"
+          name="url"
         />
-        <imagem-responsiva v-show="foto.url" :url="foto.url" :titulo="foto.titulo" />
+        <span v-show="errors.has('url')">Campo Obrigatório!</span>
+        <imagem-responsiva
+          v-show="foto.url"
+          :url="foto.url"
+          :titulo="foto.titulo"
+        />
       </div>
       <div class="controle">
         <label for="descrição">Descrição</label>
@@ -33,9 +45,9 @@
       </div>
       <div class="centralizado">
         <meu-botao rotulo="GRAVAR" tipo="submit" />
-        <router-link to="/"
-          ><meu-botao rotulo="VOLTAR" tipo="button"
-        /></router-link>
+        <router-link :to="{ name: 'home' }">
+          <meu-botao rotulo="VOLTAR" tipo="button" />
+        </router-link>
       </div>
     </form>
   </div>
@@ -44,8 +56,8 @@
 <script>
 import ImagemResponsiva from "../shared/imagem-responsiva/imagemResponsiva.vue";
 import Botao from "../botao/Botao.vue";
-import FotoService from '../../domain/foto/FotoService.js';
-import Foto from '../../domain/foto/Foto.js';
+import FotoService from "../../domain/foto/FotoService.js";
+import Foto from "../../domain/foto/Foto.js";
 
 export default {
   components: {
@@ -55,24 +67,32 @@ export default {
 
   data() {
     return {
-      foto: new Foto()
+      foto: new Foto(),
+      id: this.$route.params.id,
     };
   },
 
   methods: {
     grava() {
-      this.service
-      .cadastrar(this.foto)
-      .then(() => this.foto = new Foto(), err => console.log(err))      
-      
-      this.foto = new Foto()
+      this.$validator.validateAll().then((sucess) => {
+        if (success) {
+          this.service.cadastrar(this.foto).then(
+            () => {
+              if (this.id) this.$router.push({ name: "home" });
+              this.foto = new Foto();
+            },
+            (err) => console.log(err)
+          );
+        }
+      });
     },
+  },
 
-    created() {
-      this.service = new FotoService(this.$resource);
+  created() {
+    this.service = new FotoService(this.$resource);
+    if (this.id) {
+      this.service.busca(this.id).then((foto) => (this.foto = foto));
     }
-
-
   },
 };
 </script>
@@ -101,5 +121,9 @@ export default {
 
 .centralizado {
   text-align: center;
+}
+
+span {
+  color: red;
 }
 </style>
